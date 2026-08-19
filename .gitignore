@@ -1,0 +1,45 @@
+=== Generated PDF ===
+
+doc.pdf
+
+=== LaTeX auxiliary files ===
+
+*.aux
+*.log
+*.toc
+*.out
+*.lof
+*.lot
+*.fls
+*.fdb_latexmk
+*.synctex
+*.synctex.gz
+*.bcf
+*.run.xml
+*.nav
+*.snm
+*.vrb
+
+=== Pandoc / LaTeX temporary files ===
+
+*.tex.bak
+*.bak
+*.tmp
+
+=== Build directories ===
+
+build/
+dist/
+
+=== Editor / IDE files ===
+
+*.swp
+*.swo
+*~
+.vscode/
+.idea/
+
+=== OS files ===
+
+.DS_Store
+Thumbs.db

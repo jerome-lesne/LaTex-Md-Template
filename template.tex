@@ -1,0 +1,285 @@
+$passoptions.latex()$
+
+\documentclass[
+  $if(fontsize)$
+    $fontsize$,
+  $endif$
+  $if(papersize)$
+    $papersize$paper,
+  $endif$
+  $for(classoption)$
+    $classoption$$sep$,
+  $endfor$
+]{$documentclass$}
+
+$if(beamerarticle)$
+  \usepackage{beamerarticle} % needs to be loaded first
+$endif$
+
+\usepackage[table,xcdraw]{xcolor}
+
+$if(geometry)$
+  \usepackage[$for(geometry)$$geometry$$sep$,$endfor$]{geometry}
+$endif$
+
+\usepackage{amsmath,amssymb}
+
+
+% === SECTION NUMBERING ===
+
+$if(numbersections)$
+  \setcounter{secnumdepth}{$if(secnumdepth)$$secnumdepth$$else$5$endif$}
+$else$
+  \setcounter{secnumdepth}{-\maxdimen} % remove section numbering
+$endif$
+
+% === FONTS & MISC
+
+$fonts.latex()$
+$font-settings.latex()$
+$common.latex()$
+$for(header-includes)$
+  $header-includes$
+$endfor$
+$after-header-includes.latex()$
+$hypersetup.latex()$
+
+% === CODE BLOCK STYLING ===
+
+% 1. Define the visual style of the code block
+\usepackage{tcolorbox}
+\tcbuselibrary{breakable}
+
+% Define the colors (RGB format)
+\definecolor{codebackground}{RGB}{242,242,242} % Light Gray
+\definecolor{codeframe}{RGB}{220,220,220}      % Slightly darker border
+
+% 2. Apply style to syntax-highlighted code blocks (e.g., ```bash)
+\makeatletter
+\@ifundefined{Shaded}{}{
+  \renewenvironment{Shaded}{
+    \begin{tcolorbox}[
+      breakable,
+      colback=codebackground,
+      colframe=codeframe,
+      boxrule=0.5pt,
+      arc=3pt,
+      left=4pt, right=4pt, top=4pt, bottom=4pt
+    ]
+  }{
+    \end{tcolorbox}
+  }
+}
+\makeatother
+
+% 3. Apply style to plain/unhighlighted code blocks (e.g., ```)
+\usepackage{letltxmacro}
+\makeatletter
+\LetLtxMacro\oldverbatim\verbatim
+\LetLtxMacro\endoldverbatim\endverbatim
+\renewenvironment{verbatim}{
+  \begin{tcolorbox}[
+    breakable,
+    colback=codebackground,
+    colframe=codeframe,
+    boxrule=0.5pt,
+    arc=3pt,
+    left=4pt, right=4pt, top=4pt, bottom=4pt
+  ]
+  \begin{oldverbatim}
+}{
+  \end{oldverbatim}
+  \end{tcolorbox}
+}
+\makeatother
+
+% === CUSTOM ADMONITIONS (WARNING BOX) ===
+
+% 1. Define the colors for the warning box
+\definecolor{warningbg}{RGB}{255, 243, 243}    % Very light red/pink background
+\definecolor{warningframe}{RGB}{204, 51, 51}   % Dark red border
+
+% 2. Define the "warning" environment
+\newenvironment{warning}{
+  \begin{tcolorbox}[
+    breakable,
+    colback=warningbg,
+    colframe=warningframe,
+    boxrule=1pt,
+    arc=3pt,
+    left=6pt, right=6pt, top=6pt, bottom=6pt,
+    title=\textbf{Attention} % This adds a permanent title bar to the top
+  ]
+}{
+  \end{tcolorbox}
+}
+
+% === TABLE PACKAGES ===
+\usepackage{longtable} % MUST BE LOADED FIRST
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{xparse}
+
+% === TABLE STYLING ===
+\rowcolors{2}{gray!20}{white}
+\renewcommand{\arraystretch}{1.8}
+\setlength{\tabcolsep}{12pt}
+\arrayrulecolor{gray!70}
+\setlength{\heavyrulewidth}{1.2pt}
+
+% Fix the "White Gap"
+\setlength{\aboverulesep}{0pt}
+\setlength{\belowrulesep}{0pt}
+
+% Header-styling
+\let\oldtoprule\toprule
+\renewcommand{\toprule}{\oldtoprule\rowcolor{gray!60}}
+
+\setlength{\LTleft}{0pt}
+
+% === PANDOC EDGE PADDING FIX ===
+\ExplSyntaxOn
+\let\oldlongtable\longtable
+\let\endoldlongtable\endlongtable
+
+\cs_new:Npn \start_my_longtable:nn #1 #2 {
+  \oldlongtable[#1]{#2}
+}
+
+\RenewDocumentEnvironment{longtable}{ O{} m }{
+  \tl_set:Nn \l_tmpa_tl {#2}
+  \regex_replace_all:nnN { \@\{\} } { } \l_tmpa_tl
+  \exp_args:NnV \start_my_longtable:nn {#1} \l_tmpa_tl
+}{
+  \endoldlongtable
+}
+\ExplSyntaxOff
+
+% === HIGHLIGHT ===
+
+% Add the soul package to enable Pandoc's \hl{} output
+\usepackage{soul}
+% Optional: Change the default highlight color (yellow) to something else
+\sethlcolor{yellow}
+
+% === TITLE ===
+$if(title)$
+  \title{$title$$if(thanks)$\thanks{$thanks$}$endif$}
+$endif$
+
+% === SUBTITLE ===
+$if(subtitle)$
+  \usepackage{etoolbox}
+  \makeatletter
+  \providecommand{\subtitle}[1]{% add subtitle to \maketitle
+    \apptocmd{\@title}{\par {\large #1 \par}}{}{}
+  }
+  \makeatother
+  \subtitle{$subtitle$}
+$endif$
+
+% === AUTHOR ===
+\author{$for(author)$$author$$sep$ \and $endfor$}
+\date{$date$}
+
+% === DOCUMENT ===
+\begin{document}
+
+$if(has-frontmatter)$
+  \frontmatter
+$endif$
+
+$if(title)$
+
+  \begin{titlepage}
+  \thispagestyle{empty}
+  \centering
+
+  \vspace*{3cm}
+
+  \includegraphics[width=10cm]{$school-logo$}
+
+  \vspace{2cm}
+
+  {\Huge \textbf{$title$}\par}
+
+  \vspace{2cm}
+
+  {\Large $for(author)$$author$$sep$, $endfor$\par}
+
+  \vfill
+
+  {\large $date$\par}
+
+  \end{titlepage}
+
+  \clearpage
+
+$endif$
+
+$for(include-before)$
+  $include-before$
+$endfor$
+
+% ===== TABLE OF CONTENTS =====
+$if(toc)$
+  $if(toc-title)$
+    \renewcommand*\contentsname{$toc-title$}
+  $endif$
+  {
+    $if(colorlinks)$
+      \hypersetup{linkcolor=$if(toccolor)$$toccolor$$else$$endif$}
+    $endif$
+    \setcounter{tocdepth}{$toc-depth$}
+    \tableofcontents
+  }
+$endif$
+
+$if(lof)$
+  \listoffigures
+$endif$
+
+$if(lot)$
+  \listoftables
+$endif$
+
+$if(linestretch)$
+  \setstretch{$linestretch$}
+$endif$
+
+$if(has-frontmatter)$
+  \mainmatter
+$endif$
+
+\clearpage
+
+% === BODY ===
+$body$
+
+$if(has-frontmatter)$
+  \backmatter
+$endif$
+
+$if(natbib)$
+  $if(bibliography)$
+    $if(biblio-title)$
+      $if(has-chapters)$
+      \renewcommand\bibname{$biblio-title$}
+      $else$
+      \renewcommand\refname{$biblio-title$}
+      $endif$
+    $endif$
+    \bibliography{$for(bibliography)$$bibliography$$sep$,$endfor$}
+
+    $endif$
+  $endif$
+  $if(biblatex)$
+  \printbibliography$if(biblio-title)$[title=$biblio-title$]$endif$
+
+$endif$
+
+$for(include-after)$
+  $include-after$
+$endfor$
+
+\end{document}
