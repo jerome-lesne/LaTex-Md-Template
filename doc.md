@@ -144,6 +144,10 @@ A normal clickable link:
 
 [Visit example.com](https://example.com)
 
+An internal link to another section:
+
+[Jump to the tables section](#tables)
+
 # Block Quotes
 
 > Any sufficiently advanced technology is indistinguishable from magic.
@@ -155,6 +159,18 @@ A normal clickable link:
 Images are stored in the `images/` directory.
 
 ![Example image](./images/des.jpg){width=90%}
+
+Use a `figure-block` to keep an image and its caption on the same page:
+
+```markdown
+::: figure-block
+![Example image](./images/des.jpg){width=90%}
+:::
+```
+
+::: figure-block
+![Example image kept with its caption](./images/des.jpg){width=50%}
+:::
 
 The width can be changed:
 
@@ -211,6 +227,14 @@ public class Example {
 }
 ```
 
+## Plain code block
+
+Without a language name, the block is still displayed inside a styled box:
+
+```
+plain text without syntax highlighting
+```
+
 Code blocks are automatically displayed inside styled boxes.
 
 # Tables
@@ -224,6 +248,15 @@ Markdown tables are convenient for simple one-line cells.
 | First  |    10 | Simple content   |
 | Second |    20 | **Bold content** |
 | Third  |    30 | More content     |
+
+A bold paragraph directly before a table becomes its caption:
+
+**Example labeled table**
+
+| Name   | Value |
+| ------ | ----: |
+| First  |    10 |
+| Second |    20 |
 
 ## Pandoc table
 
@@ -258,6 +291,28 @@ This can be useful for:
 * Important notes
 * Constraints
 * Things that require special attention
+
+# Annex Sheets
+
+An `annex-sheet` renders its content as a compact sheet on its own page:
+
+```markdown
+::: annex-sheet
+### My annex
+
+Content of the annex.
+:::
+```
+
+::: annex-sheet
+### Example annex sheet
+
+This content is rendered inside a compact annex sheet.
+
+* Smaller text
+* Tighter tables and spacing
+* Useful for appendices
+:::
 
 # Page Breaks
 

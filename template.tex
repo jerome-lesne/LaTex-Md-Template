@@ -24,6 +24,40 @@ $endif$
 
 \usepackage{amsmath,amssymb}
 
+% === HEADING INDENTATION ===
+\usepackage{titlesec}
+
+\titleformat{\section}{\Large\bfseries}{\thesection}{1em}{}
+\titleformat{\subsection}{\large\bfseries}{\thesubsection}{1em}{}
+\titleformat{\subsubsection}{\normalsize\bfseries}{\thesubsubsection}{1em}{}
+\titleformat{\paragraph}{\normalsize\bfseries}{\theparagraph}{1em}{}
+
+\titlespacing*{\section}{0em}{3.5ex}{2.3ex}
+\titlespacing*{\subsection}{1em}{3ex}{1.5ex}
+\titlespacing*{\subsubsection}{2em}{2.5ex}{1ex}
+\titlespacing*{\paragraph}{3em}{2ex}{0.8ex}
+
+% === QUOTE STYLING ===
+\usepackage{mdframed}
+
+\mdfdefinestyle{quotestyle}{
+    leftline=true,
+    rightline=false,
+    topline=false,
+    bottomline=false,
+    linecolor=blue,
+    linewidth=2pt,
+    innerleftmargin=10pt,
+    innerrightmargin=0pt,
+    innertopmargin=5pt,
+    innerbottommargin=5pt
+}
+
+\renewenvironment{quote}
+    {\begin{mdframed}[style=quotestyle]}
+    {\end{mdframed}}
+
+
 
 % === SECTION NUMBERING ===
 
@@ -43,6 +77,47 @@ $for(header-includes)$
 $endfor$
 $after-header-includes.latex()$
 $hypersetup.latex()$
+
+% === VISIBLE INTERNAL LINKS ===
+\usepackage[normalem]{ulem}
+\hypersetup{colorlinks=true, linkcolor=blue}
+\let\originalhyperref\hyperref
+\renewcommand{\hyperref}[2][]{\originalhyperref[#1]{\uline{#2}}}
+
+% Create destinations where unnumbered headings are actually typeset.
+% Pandoc's following \label and TOC entry must not inherit a table's anchor.
+\titleformat{name=\section,numberless}{\Large\bfseries}{}{0pt}{\phantomsection}
+\titleformat{name=\subsection,numberless}{\large\bfseries}{}{0pt}{\phantomsection}
+\titleformat{name=\subsubsection,numberless}{\normalsize\bfseries}{}{0pt}{\phantomsection}
+\titleformat{name=\paragraph,numberless}{\normalsize\bfseries}{}{0pt}{\phantomsection}
+\titleformat{name=\subparagraph,numberless}{\normalsize\bfseries}{}{0pt}{\phantomsection}
+
+% === COMPACT ONE-PAGE ANNEX SHEETS ===
+\newenvironment{annexsheet}{%
+  \clearpage
+  \begingroup
+  \footnotesize
+  \renewcommand{\arraystretch}{1.05}%
+  \setlength{\tabcolsep}{5pt}%
+  \setlength{\LTpre}{0.2em}%
+  \setlength{\LTpost}{0.2em}%
+  \setlength{\parskip}{0.15em}%
+  \titlespacing*{\subsubsection}{0pt}{0pt}{0.35em}%
+  \titlespacing*{\paragraph}{0pt}{0.4em}{0.15em}%
+  \titlespacing*{\subparagraph}{0pt}{0.4em}{0.15em}%
+}{%
+  \par
+  \endgroup
+  \clearpage
+}
+
+% Keep each Markdown figure and its visible caption on the same page.
+\newenvironment{figureblock}{%
+  \par\addvspace{\medskipamount}%
+  \noindent\begin{minipage}{\linewidth}%
+}{%
+  \end{minipage}\par\addvspace{\medskipamount}%
+}
 
 % === CODE BLOCK STYLING ===
 
@@ -73,11 +148,10 @@ $hypersetup.latex()$
 \makeatother
 
 % 3. Apply style to plain/unhighlighted code blocks (e.g., ```)
-\usepackage{letltxmacro}
-\makeatletter
-\LetLtxMacro\oldverbatim\verbatim
-\LetLtxMacro\endoldverbatim\endverbatim
-\renewenvironment{verbatim}{
+% NOTE: verbatim must not be redefined with \renewenvironment (breaks catcode
+% scanning). Hooks preserve the original verbatim behaviour.
+\usepackage{etoolbox}
+\BeforeBeginEnvironment{verbatim}{%
   \begin{tcolorbox}[
     breakable,
     colback=codebackground,
@@ -85,13 +159,11 @@ $hypersetup.latex()$
     boxrule=0.5pt,
     arc=3pt,
     left=4pt, right=4pt, top=4pt, bottom=4pt
-  ]
-  \begin{oldverbatim}
-}{
-  \end{oldverbatim}
-  \end{tcolorbox}
+  ]%
 }
-\makeatother
+\AfterEndEnvironment{verbatim}{%
+  \end{tcolorbox}%
+}
 
 % === CUSTOM ADMONITIONS (WARNING BOX) ===
 
@@ -119,6 +191,11 @@ $hypersetup.latex()$
 \usepackage{booktabs}
 \usepackage{array}
 \usepackage{xparse}
+
+% Keep explicit Markdown table labels inside longtable, without double numbering.
+\usepackage{caption}
+\captionsetup[longtable]{labelformat=empty,justification=raggedright,singlelinecheck=false,font=normalsize}
+\setlength{\LTcapwidth}{\textwidth}
 
 % === TABLE STYLING ===
 \rowcolors{2}{gray!20}{white}
